@@ -17,7 +17,7 @@ function Reset() {
     <form className="mx-auto max-w-md space-y-4 px-4 py-16" onSubmit={async (e) => {
       e.preventDefault();
       const { error } = await supabase.auth.updateUser({ password: pw });
-      if (error) return toast.error(error.message);
+      if (error) { toast.error(error.message); return; }
       toast.success("Password updated");
       navigate({ to: "/dashboard" });
     }}>

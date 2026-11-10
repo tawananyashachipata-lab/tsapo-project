@@ -38,20 +38,20 @@ function AgentDesk() {
 
   async function advance(id: string, to: ParcelStatus) {
     const { error } = await supabase.rpc("update_parcel_status", { _parcel: id, _status: to, _note: "" });
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     toast.success(STATUS_LABEL[to]); refresh();
   }
   async function confirmCash(paymentId: string) {
     const ref = prompt("Receipt number for the cash received");
     if (!ref) return;
     const { error } = await supabase.rpc("confirm_payment", { _payment: paymentId, _reference: ref });
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     toast.success("Payment confirmed"); refresh();
   }
   async function verify(e: React.FormEvent) {
     e.preventDefault();
     const { data, error } = await supabase.rpc("verify_pickup", { _tracking: code.t.trim().toUpperCase(), _code: code.c.trim() });
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     const r = data as { ok: boolean; message: string };
     if (r.ok) { toast.success(r.message); setCode({ t: "", c: "" }); refresh(); } else toast.error(r.message);
   }

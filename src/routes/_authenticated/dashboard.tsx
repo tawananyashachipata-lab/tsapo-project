@@ -39,7 +39,7 @@ function Dashboard() {
 
   async function cancel(id: string) {
     const { error } = await supabase.rpc("cancel_booking", { _parcel: id });
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     toast.success("Booking cancelled");
     qc.invalidateQueries({ queryKey: ["my-parcels"] });
   }
@@ -48,7 +48,7 @@ function Dashboard() {
   async function sendSupport(e: React.FormEvent) {
     e.preventDefault();
     const { error } = await supabase.from("support_requests").insert({ user_id: user!.id, subject: s.subject, message: s.message, category: "general", parcel_tracking: s.parcel || null });
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     toast.success("Request sent");
     setS({ subject: "", message: "", parcel: "" });
     qc.invalidateQueries({ queryKey: ["support"] });
