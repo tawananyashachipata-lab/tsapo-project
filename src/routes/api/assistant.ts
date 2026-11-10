@@ -1,11 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-
-const SYSTEM = `You are the Tsapo assistant, a friendly helper for Tsapo, a parcel delivery service in Zimbabwe.
-How Tsapo works: senders book online, drop the parcel at an approved Tsapo agent in their town, the parcel travels to a destination agent, and the recipient collects it by showing a 6-digit pickup code.
-Statuses: Awaiting drop-off, Received by agent, In transit, Arrived at destination, Ready for collection, Collected, Cancelled.
-Payments: EcoCash, OneMoney, bank transfer or cash at the agent. Prices are in USD and depend on weight, category and whether it goes to another town.
-Bookings can be cancelled only before an agent receives the parcel. Phone numbers must be Zimbabwean (+263).
-Tracking numbers look like TSP-XXXX-123456; users can track at /track. Keep answers short and practical. If you don't know something, suggest contacting support from "My parcels".`;
+import { createClient } from "@supabase/supabase-js";
+import type { Database } from "@/integrations/supabase/types";
 
 export const Route = createFileRoute("/api/assistant")({
   server: {
@@ -13,45 +8,23 @@ export const Route = createFileRoute("/api/assistant")({
       POST: async ({ request }) => {
         const key = process.env["LOVABLE_API_KEY"];
         if (!key) return new Response("Assistant is not configured", { status: 500 });
-        const body = (await request.json()) as { messages?: { role: string; content: string }[] };
-        const messages = (body.messages ?? []).slice(-20).filter((m) => (m.role === "user" || m.role === "assistant") && typeof m.content === "string").map((m) => ({ role: m.role, content: m.content.slice(0, 4000) }));
-        const upstream = await fetch("https://ai.gateway.lovable.dev/v1/responses", {
-          method: "POST",
-          signal: request.signal,
-          headers: { "Content-Type": "application/json", "Lovable-API-Key": key, "X-Lovable-AIG-SDK": "fetch" },
-          body: JSON.stringify({ model: "openai/gpt-6-astra", instructions: SYSTEM, input: messages, stream: true, store: false, reasoning: { effort: "low" } }),
-        });
-        if (!upstream.ok || !upstream.body) {
-          const msg = upstream.status === 429 ? "The assistant is busy, please try again shortly." : upstream.status === 402 ? "The assistant is temporarily unavailable." : "The assistant could not answer right now.";
-          return new Response(msg, { status: upstream.status });
+        const url = process.env["SUPABASE_URL"];
+        const publicKey = process.env["SUPABASE_PUBLISHABLE_KEY"];
+        if (!url || !publicKey) return new Response("Assistant account access is not configured.", { status: 503 });
+        const token = request.headers.get("Authorization")?.replace(/^Bearer /, "");
+        if (!token || token.split(".").length !== 3) return new Response("Sign in to chat with Tsapo.", { status: 401 });
+        if (request.headers.get("Origin") && request.headers.get("Origin") !== new URL(request.url).origin) return new Response("Request not allowed.", { status: 403 });
+        const client = createClient<Database>(url, publicKey, { auth: { persistSession: false, autoRefreshToken: false }, global: { headers: { Authorization: `Bearer ${token}` }, fetch: (input, init) => { const headers = new Headers(init?.headers); headers.set("apikey", publicKey); return fetch(input, { ...init, headers }); } } });
+        const { data, error } = await client.auth.getUser(token);
+        if (error || !data.user) return new Response("Sign in to chat with Tsapo.", { status: 401 });
+        try {
+          const { handleAssistant } = await import("@/lib/server/assistant-response");
+          return await handleAssistant(request, client, data.user.id, key);
+        } catch (error) {
+          if (request.signal.aborted) return new Response(null, { status: 499 });
+          console.error("Tsapo assistant request failed", error instanceof Error ? error.name : "Unknown error");
+          return new Response("The assistant could not connect. Please try again later.", { status: 503 });
         }
-        const reader = upstream.body.getReader();
-        const dec = new TextDecoder();
-        const enc = new TextEncoder();
-        let buf = "";
-        const stream = new ReadableStream({
-          async pull(ctrl) {
-            // Keep reading until we have text to emit, so the stream never stalls.
-            for (;;) {
-              const { done, value } = await reader.read();
-              if (done) { ctrl.close(); return; }
-              buf += dec.decode(value, { stream: true });
-              const lines = buf.split("\n");
-              buf = lines.pop() ?? "";
-              let out = "";
-              for (const line of lines) {
-                if (!line.startsWith("data:")) continue;
-                try {
-                  const ev = JSON.parse(line.slice(5).trim());
-                  if (ev.type === "response.output_text.delta" && ev.delta) out += ev.delta;
-                } catch { /* ignore keepalives */ }
-              }
-              if (out) { ctrl.enqueue(enc.encode(out)); return; }
-            }
-          },
-          cancel() { reader.cancel(); },
-        });
-        return new Response(stream, { headers: { "Content-Type": "text/plain; charset=utf-8" } });
       },
     },
   },
