@@ -34,26 +34,26 @@ function Admin() {
 
   async function setAgent(id: string, status: string) {
     const { error } = await supabase.from("agents").update({ status }).eq("id", id);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     toast.success(`Agent ${status}`); inv("adm-agents");
   }
   async function confirmPay(id: string) {
     const ref = prompt("Payment reference (EcoCash/OneMoney/bank ref)");
     if (!ref) return;
     const { error } = await supabase.rpc("confirm_payment", { _payment: id, _reference: ref });
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     toast.success("Payment confirmed"); inv("adm-pay");
   }
   async function reply(id: string) {
     const text = prompt("Your reply");
     if (!text) return;
     const { error } = await supabase.from("support_requests").update({ admin_response: text, status: "resolved", responded_by: user!.id }).eq("id", id);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     inv("adm-support");
   }
   async function toggleAdmin(id: string, grant: boolean) {
     const { error } = await supabase.rpc("set_admin_role", { _user: id, _grant: grant });
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     inv("adm-users");
   }
 

@@ -37,13 +37,13 @@ function AuthPage() {
     setBusy(true);
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     setBusy(false);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     navigate({ to: "/dashboard" });
   }
 
   async function signUp(e: React.FormEvent) {
     e.preventDefault();
-    if (!isZimPhone(phone)) return toast.error("Enter a Zimbabwean phone number, e.g. 0771 234 567");
+    if (!isZimPhone(phone)) { toast.error("Enter a Zimbabwean phone number, e.g. 0771 234 567"); return; }
     setBusy(true);
     const { error } = await supabase.auth.signUp({
       email, password,
@@ -53,12 +53,12 @@ function AuthPage() {
       },
     });
     setBusy(false);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     setSent(true);
   }
 
   async function forgot() {
-    if (!email) return toast.error("Enter your email first");
+    if (!email) { toast.error("Enter your email first"); return; }
     const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: `${window.location.origin}/reset-password` });
     if (error) toast.error(error.message); else toast.success("Check your email for a reset link");
   }

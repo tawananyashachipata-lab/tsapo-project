@@ -46,15 +46,15 @@ function Book() {
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
-    if (!isZimPhone(f.sender_phone) || !isZimPhone(f.recipient_phone)) return toast.error("Phone numbers must be Zimbabwean (+263)");
-    if (!f.pickup || !f.destination || !f.category) return toast.error("Choose towns and a category");
+    if (!isZimPhone(f.sender_phone) || !isZimPhone(f.recipient_phone)) { toast.error("Phone numbers must be Zimbabwean (+263)"); return; }
+    if (!f.pickup || !f.destination || !f.category) { toast.error("Choose towns and a category"); return; }
     setBusy(true);
     let image_path = "";
     if (file) {
       const { data: u } = await supabase.auth.getUser();
       const path = `${u.user!.id}/${crypto.randomUUID()}-${file.name}`;
       const up = await supabase.storage.from("parcel-images").upload(path, file);
-      if (up.error) { setBusy(false); return toast.error(up.error.message); }
+      if (up.error) { setBusy(false); { toast.error(up.error.message); return; } }
       image_path = path;
     }
     const { data, error } = await supabase.rpc("create_booking", {
@@ -66,7 +66,7 @@ function Book() {
       _instructions: f.instructions, _image_path: (image_path || null) as string, _payment_method: f.payment,
     });
     setBusy(false);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     setDone(data as { tracking_number: string; price_usd: number });
   }
 

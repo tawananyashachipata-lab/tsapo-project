@@ -52,10 +52,10 @@ function AgentsPage() {
   const [f, setF] = useState({ business_name: "", contact_name: "", phone: "", address: "", location_id: "" });
   async function apply(e: React.FormEvent) {
     e.preventDefault();
-    if (!isZimPhone(f.phone)) return toast.error("Enter a Zimbabwean phone number");
-    if (!f.location_id) return toast.error("Choose your town");
-    const { error } = await supabase.from("agents").insert({ ...f, phone: normalizeZimPhone(f.phone), user_id: user!.id, email: user!.email, status: "pending" });
-    if (error) return toast.error(error.message);
+    if (!isZimPhone(f.phone)) { toast.error("Enter a Zimbabwean phone number"); return; }
+    if (!f.location_id) { toast.error("Choose your town"); return; }
+    const { error } = await supabase.from("agents").insert({ ...f, phone: normalizeZimPhone(f.phone), user_id: user!.id, email: user!.email ?? null, status: "pending" });
+    if (error) { toast.error(error.message); return; }
     toast.success("Application sent. An administrator will review it.");
     qc.invalidateQueries({ queryKey: ["agents-public"] });
   }

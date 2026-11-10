@@ -28,3 +28,7 @@ use the editor.
   own key and store it in Secrets.
 - **Secrets.** Lovable manages them. Do not put secret values in the repo.
 <!-- LOVABLE:END -->
+
+## Project rules
+- Booking, status changes, pickup verification and payment confirmation go through security-definer database functions (rpc), never direct table writes — keeps role checks server-side.
+- The AI assistant streams plain text from the `/api/assistant` server route; the gateway key stays on the server.

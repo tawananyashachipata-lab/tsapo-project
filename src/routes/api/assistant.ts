@@ -31,17 +31,22 @@ export const Route = createFileRoute("/api/assistant")({
         let buf = "";
         const stream = new ReadableStream({
           async pull(ctrl) {
-            const { done, value } = await reader.read();
-            if (done) return ctrl.close();
-            buf += dec.decode(value, { stream: true });
-            const lines = buf.split("\n");
-            buf = lines.pop() ?? "";
-            for (const line of lines) {
-              if (!line.startsWith("data:")) continue;
-              try {
-                const ev = JSON.parse(line.slice(5).trim());
-                if (ev.type === "response.output_text.delta" && ev.delta) ctrl.enqueue(enc.encode(ev.delta));
-              } catch { /* ignore keepalives */ }
+            // Keep reading until we have text to emit, so the stream never stalls.
+            for (;;) {
+              const { done, value } = await reader.read();
+              if (done) { ctrl.close(); return; }
+              buf += dec.decode(value, { stream: true });
+              const lines = buf.split("\n");
+              buf = lines.pop() ?? "";
+              let out = "";
+              for (const line of lines) {
+                if (!line.startsWith("data:")) continue;
+                try {
+                  const ev = JSON.parse(line.slice(5).trim());
+                  if (ev.type === "response.output_text.delta" && ev.delta) out += ev.delta;
+                } catch { /* ignore keepalives */ }
+              }
+              if (out) { ctrl.enqueue(enc.encode(out)); return; }
             }
           },
           cancel() { reader.cancel(); },
