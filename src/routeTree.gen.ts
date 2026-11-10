@@ -21,6 +21,9 @@ import { Route as AuthenticatedAgentRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedBookRouteImport } from './routes/_authenticated/book'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as ApiAssistantRouteImport } from './routes/api/assistant'
+import { Route as AssistantThreadIdRouteImport } from './routes/assistant_.$threadId'
+import { Route as HomeChatThreadIdRouteImport } from './routes/home-chat.$threadId'
+import { Route as AuthenticatedBookChatThreadIdRouteImport } from './routes/_authenticated/book_.chat.$threadId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -81,6 +84,22 @@ const ApiAssistantRoute = ApiAssistantRouteImport.update({
   path: '/api/assistant',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AssistantThreadIdRoute = AssistantThreadIdRouteImport.update({
+  id: '/assistant_/$threadId',
+  path: '/assistant/$threadId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HomeChatThreadIdRoute = HomeChatThreadIdRouteImport.update({
+  id: '/home-chat/$threadId',
+  path: '/home-chat/$threadId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedBookChatThreadIdRoute =
+  AuthenticatedBookChatThreadIdRouteImport.update({
+    id: '/book_/chat/$threadId',
+    path: '/book/chat/$threadId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -94,6 +113,9 @@ export interface FileRoutesByFullPath {
   '/book': typeof AuthenticatedBookRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/api/assistant': typeof ApiAssistantRoute
+  '/assistant/$threadId': typeof AssistantThreadIdRoute
+  '/home-chat/$threadId': typeof HomeChatThreadIdRoute
+  '/book/chat/$threadId': typeof AuthenticatedBookChatThreadIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -107,6 +129,9 @@ export interface FileRoutesByTo {
   '/book': typeof AuthenticatedBookRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/api/assistant': typeof ApiAssistantRoute
+  '/assistant/$threadId': typeof AssistantThreadIdRoute
+  '/home-chat/$threadId': typeof HomeChatThreadIdRoute
+  '/book/chat/$threadId': typeof AuthenticatedBookChatThreadIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -122,6 +147,9 @@ export interface FileRoutesById {
   '/_authenticated/book': typeof AuthenticatedBookRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/api/assistant': typeof ApiAssistantRoute
+  '/assistant_/$threadId': typeof AssistantThreadIdRoute
+  '/home-chat/$threadId': typeof HomeChatThreadIdRoute
+  '/_authenticated/book_/chat/$threadId': typeof AuthenticatedBookChatThreadIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -137,6 +165,9 @@ export interface FileRouteTypes {
     | '/book'
     | '/dashboard'
     | '/api/assistant'
+    | '/assistant/$threadId'
+    | '/home-chat/$threadId'
+    | '/book/chat/$threadId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -150,6 +181,9 @@ export interface FileRouteTypes {
     | '/book'
     | '/dashboard'
     | '/api/assistant'
+    | '/assistant/$threadId'
+    | '/home-chat/$threadId'
+    | '/book/chat/$threadId'
   id:
     | '__root__'
     | '/'
@@ -164,6 +198,9 @@ export interface FileRouteTypes {
     | '/_authenticated/book'
     | '/_authenticated/dashboard'
     | '/api/assistant'
+    | '/assistant_/$threadId'
+    | '/home-chat/$threadId'
+    | '/_authenticated/book_/chat/$threadId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -175,6 +212,8 @@ export interface RootRouteChildren {
   ResetPasswordRoute: typeof ResetPasswordRoute
   TrackRoute: typeof TrackRoute
   ApiAssistantRoute: typeof ApiAssistantRoute
+  AssistantThreadIdRoute: typeof AssistantThreadIdRoute
+  HomeChatThreadIdRoute: typeof HomeChatThreadIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -263,6 +302,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAssistantRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/assistant_/$threadId': {
+      id: '/assistant_/$threadId'
+      path: '/assistant/$threadId'
+      fullPath: '/assistant/$threadId'
+      preLoaderRoute: typeof AssistantThreadIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/home-chat/$threadId': {
+      id: '/home-chat/$threadId'
+      path: '/home-chat/$threadId'
+      fullPath: '/home-chat/$threadId'
+      preLoaderRoute: typeof HomeChatThreadIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/book_/chat/$threadId': {
+      id: '/_authenticated/book_/chat/$threadId'
+      path: '/book/chat/$threadId'
+      fullPath: '/book/chat/$threadId'
+      preLoaderRoute: typeof AuthenticatedBookChatThreadIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
@@ -271,6 +331,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAgentRoute: typeof AuthenticatedAgentRoute
   AuthenticatedBookRoute: typeof AuthenticatedBookRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedBookChatThreadIdRoute: typeof AuthenticatedBookChatThreadIdRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -278,6 +339,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAgentRoute: AuthenticatedAgentRoute,
   AuthenticatedBookRoute: AuthenticatedBookRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedBookChatThreadIdRoute: AuthenticatedBookChatThreadIdRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
@@ -292,6 +354,8 @@ const rootRouteChildren: RootRouteChildren = {
   ResetPasswordRoute: ResetPasswordRoute,
   TrackRoute: TrackRoute,
   ApiAssistantRoute: ApiAssistantRoute,
+  AssistantThreadIdRoute: AssistantThreadIdRoute,
+  HomeChatThreadIdRoute: HomeChatThreadIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
