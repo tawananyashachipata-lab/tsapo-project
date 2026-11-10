@@ -41,9 +41,9 @@ export async function handleAssistant(request: Request, client: SupabaseClient<D
   const facts: Record<string, unknown> = { pricing: pricing.error ? "Unavailable" : pricing.data?.value, categories: categories.error ? "Unavailable" : categories.data };
   if (booking) {
     const quote = await client.rpc("quote_price", { _weight: booking.weight, _category: booking.category, _from: booking.from, _to: booking.to });
-    facts.currentBooking = { weightKg: booking.weight, priceUSD: quote.error ? "Unavailable" : quote.data };
+    facts["currentBooking"] = { weightKg: booking.weight, priceUSD: quote.error ? "Unavailable" : quote.data };
   }
-  facts.tracking = await Promise.all(trackingNumbers(messageText(last)).map(async (number) => {
+  facts["tracking"] = await Promise.all(trackingNumbers(messageText(last)).map(async (number) => {
     const result = await client.rpc("track_parcel", { _tracking: number });
     return { number, record: result.error ? "Unavailable" : result.data ?? "Not found" };
   }));
