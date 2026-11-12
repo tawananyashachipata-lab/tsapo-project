@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -17,32 +17,38 @@ import { supabase } from "@/integrations/supabase/client";
 import { useLocations } from "@/routes/agents";
 import { isZimPhone, normalizeZimPhone, PAYMENT_LABEL, usd } from "@/lib/tsapo";
 import { useBookingDraft } from "@/lib/booking-draft";
+import { useSession } from "@/lib/auth";
+import { requireData, validateParcelPhoto } from "@/lib/operations";
+import { QueryError } from "@/components/QueryError";
 
 const NONE = "none";
 
 export function BookingForm() {
+  const { user } = useSession();
+  const qc = useQueryClient();
   const { data: locations = [] } = useLocations();
   const cats = useQuery({
     queryKey: ["cats"],
     queryFn: async () =>
-      (await supabase.from("parcel_categories").select("id,name").order("name")).data ?? [],
+      requireData(await supabase.from("parcel_categories").select("id,name").order("name")) ?? [],
   });
   const agents = useQuery({
     queryKey: ["agents-approved"],
     queryFn: async () =>
-      (
+      requireData(
         await supabase
           .from("agents")
           .select("id,business_name,location_id")
           .eq("status", "approved")
-      ).data ?? [],
+      ) ?? [],
   });
   const profile = useQuery({
-    queryKey: ["me"],
+    queryKey: ["me", user?.id],
+    enabled: Boolean(user),
     queryFn: async () => {
       const { data: u } = await supabase.auth.getUser();
       if (!u.user) return null;
-      return (await supabase.from("profiles").select("*").eq("id", u.user.id).maybeSingle()).data;
+      return requireData(await supabase.from("profiles").select("*").eq("id", u.user.id).maybeSingle());
     },
   });
 
@@ -66,14 +72,14 @@ export function BookingForm() {
     queryKey: ["quote", f.weight, f.category, f.pickup, f.destination],
     enabled: !!(f.pickup && f.destination && f.category && Number(f.weight) > 0),
     queryFn: async () =>
-      (
+      requireData(
         await supabase.rpc("quote_price", {
           _weight: Number(f.weight),
           _category: f.category,
           _from: f.pickup,
           _to: f.destination,
         })
-      ).data,
+      ),
   });
 
   async function submit(e: React.FormEvent) {
@@ -86,16 +92,24 @@ export function BookingForm() {
       toast.error("Choose towns and a category");
       return;
     }
+    if (!user) { toast.error("Sign in to send a parcel"); return; }
+    if (!Number.isFinite(Number(f.weight)) || Number(f.weight) <= 0 || Number(f.weight) > 200) {
+      toast.error("Enter a weight greater than zero and at most 200 kg"); return;
+    }
+    if (f.description.trim().length < 3) { toast.error("Please describe the goods"); return; }
     setBusy(true);
+    try {
     let image_path = "";
     if (file) {
+      validateParcelPhoto(file);
       const { data: u } = await supabase.auth.getUser();
       if (!u.user) {
         setBusy(false);
         toast.error("Sign in to send a parcel");
         return;
       }
-      const path = `${u.user.id}/${crypto.randomUUID()}-${file.name}`;
+      const extension = { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp" }[file.type];
+      const path = `${u.user.id}/${crypto.randomUUID()}.${extension}`;
       const up = await supabase.storage.from("parcel-images").upload(path, file);
       if (up.error) {
         setBusy(false);
@@ -131,6 +145,11 @@ export function BookingForm() {
       return;
     }
     setDone(data as { tracking_number: string; price_usd: number });
+    setFile(null);
+    await Promise.all([qc.invalidateQueries({ queryKey: ["my-parcels"] }), qc.invalidateQueries({ queryKey: ["notes"] })]);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Booking could not be saved");
+    } finally { setBusy(false); }
   }
 
   if (done)
@@ -186,12 +205,14 @@ export function BookingForm() {
   return (
     <form onSubmit={submit} className="mx-auto max-w-3xl space-y-8 px-4 py-12">
       <h1 className="font-display text-3xl font-bold">Send a parcel</h1>
+      <QueryError error={cats.error || agents.error || profile.error || quote.error} retry={() => { void cats.refetch(); void agents.refetch(); void profile.refetch(); void quote.refetch(); }} />
       <section className="grid gap-4 rounded-xl border bg-card p-6 sm:grid-cols-2">
         <h2 className="font-semibold sm:col-span-2">Sender</h2>
         <div>
           <Label>Name</Label>
           <Input
             required
+            aria-label="Sender name"
             value={f.sender_name}
             onChange={(e) => set("sender_name")(e.target.value)}
           />
@@ -200,6 +221,7 @@ export function BookingForm() {
           <Label>Phone</Label>
           <Input
             required
+            aria-label="Sender phone"
             placeholder="0771 234 567"
             value={f.sender_phone}
             onChange={(e) => set("sender_phone")(e.target.value)}
@@ -209,6 +231,7 @@ export function BookingForm() {
           <Label>Email</Label>
           <Input
             type="email"
+            aria-label="Sender email"
             value={f.sender_email}
             onChange={(e) => set("sender_email")(e.target.value)}
           />
@@ -220,6 +243,7 @@ export function BookingForm() {
           <Label>Name</Label>
           <Input
             required
+            aria-label="Recipient name"
             value={f.recipient_name}
             onChange={(e) => set("recipient_name")(e.target.value)}
           />
@@ -228,6 +252,7 @@ export function BookingForm() {
           <Label>Phone</Label>
           <Input
             required
+            aria-label="Recipient phone"
             placeholder="0771 234 567"
             value={f.recipient_phone}
             onChange={(e) => set("recipient_phone")(e.target.value)}
@@ -237,6 +262,7 @@ export function BookingForm() {
           <Label>Email (optional)</Label>
           <Input
             type="email"
+            aria-label="Recipient email"
             value={f.recipient_email}
             onChange={(e) => set("recipient_email")(e.target.value)}
           />
@@ -297,6 +323,7 @@ export function BookingForm() {
           <Label>Weight (kg)</Label>
           <Input
             type="number"
+            aria-label="Weight (kg)"
             min="0.1"
             max="200"
             step="0.1"
@@ -310,6 +337,7 @@ export function BookingForm() {
           <Input
             required
             value={f.description}
+            aria-label="Parcel description"
             onChange={(e) => set("description")(e.target.value)}
           />
         </div>
@@ -325,7 +353,8 @@ export function BookingForm() {
           <Label>Photo (optional)</Label>
           <Input
             type="file"
-            accept="image/*"
+            accept="image/jpeg,image/png,image/webp"
+            aria-label="Parcel photo"
             onChange={(e) => setFile(e.target.files?.[0] ?? null)}
           />
         </div>
@@ -350,7 +379,7 @@ export function BookingForm() {
             {quote.data != null ? usd(quote.data) : "—"}
           </p>
         </div>
-        <Button size="lg" disabled={busy} className="w-full sm:w-auto">
+        <Button size="lg" disabled={busy || !quote.isSuccess || quote.data == null} className="w-full sm:w-auto">
           {busy ? "Booking…" : "Confirm booking"}
         </Button>
       </section>

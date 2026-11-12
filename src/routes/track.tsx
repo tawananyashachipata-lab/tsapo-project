@@ -36,7 +36,8 @@ function TrackPage() {
     queryKey: ["track", n],
     enabled: !!n,
     queryFn: async () => {
-      const { data, error } = await supabase.rpc("track_parcel", { _tracking: n! });
+      if (!n) return null;
+      const { data, error } = await supabase.rpc("track_parcel", { _tracking: n });
       if (error) throw error;
       return data as unknown as Tracked | null;
     },

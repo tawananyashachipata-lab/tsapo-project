@@ -15,6 +15,13 @@
       "when": 1794297629718,
       "tag": "0001_assistant_account_conversations",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1794482994187,
+      "tag": "0002_harden_tsapo_operations",
+      "breakpoints": true
     }
   ]
 }

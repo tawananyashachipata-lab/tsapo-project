@@ -23,6 +23,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
 import { useBookingDraft } from "@/lib/booking-draft";
 import { savedMessages, type BookingQuoteContext } from "@/lib/assistant";
+import { decodeAssistantStream } from "@/lib/assistant-stream";
 import assistantLogo from "@/assets/tsapo-assistant.jpg";
 
 type Surface = "home" | "book" | "assistant";
@@ -323,38 +324,7 @@ function ChatWindow({
           const response = await fetch(input, init);
           if (!response.ok) throw new Error(await response.text());
           if (!response.body) throw new Error("The assistant returned no answer.");
-          const reader = response.body.getReader();
-          const decoder = new TextDecoder();
-          const encoder = new TextEncoder();
-          let pending = "";
-          let errorPrefixEmitted = false;
-          const body = new ReadableStream<Uint8Array>({
-            async pull(controller) {
-              try {
-                const chunk = await reader.read();
-                pending += chunk.done
-                  ? decoder.decode()
-                  : decoder.decode(chunk.value, { stream: true });
-                const marker = pending.indexOf("\u001e");
-                if (marker >= 0) {
-                  if (marker > 0 && !errorPrefixEmitted) {
-                    controller.enqueue(encoder.encode(pending.slice(0, marker)));
-                    errorPrefixEmitted = true;
-                  }
-                  if (!chunk.done) return;
-                  throw new Error(pending.slice(marker + "\u001eTSAPO_ERROR:".length));
-                }
-                if (pending) {
-                  controller.enqueue(encoder.encode(pending));
-                  pending = "";
-                }
-                if (chunk.done) controller.close();
-              } catch (error) {
-                controller.error(error);
-              }
-            },
-            cancel: () => reader.cancel(),
-          });
+          const body = decodeAssistantStream(response.body);
           return new Response(body, { headers: response.headers });
         },
       }),
