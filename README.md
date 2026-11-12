@@ -1,24 +1,28 @@
-# Pixel Perfect Replica
+# Tsapo
 
-Implement exactly the screenshot and nothing else
+Tsapo is an independently maintained parcel delivery application built with React, TanStack Start, Vite and TypeScript.
 
-This project was built with [Lovable](https://lovable.dev).
+## Local development
 
-## Build with Lovable
-
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/b2721b41-bb3b-4edd-a28d-034edb862a67).
-
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: every change made in Lovable is committed straight to this repository.
-- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
-
-## Development
-
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
+Use Node.js 20.19+ or 22.12+ and npm.
 
 ```sh
-git clone <this-repository-url>
-cd <repository-name>
-npm i
+git clone https://github.com/tawananyashachipata-lab/tsapo-project.git
+cd tsapo-project
+npm install
 npm run dev
 ```
+
+## Build and tests
+
+```sh
+npm run build
+npm run test
+npm run lint
+```
+
+## Deployment
+
+Deploy to a Node.js-compatible host with `npm install` and `npm run build`. TanStack Start needs a server runtime, not static-only hosting. Set any backend environment variables in the hosting provider.
+
+The Vite/TanStack Start plugin chain is configured directly in `vite.config.ts`; the project does not require a proprietary editor or its build plugin.
