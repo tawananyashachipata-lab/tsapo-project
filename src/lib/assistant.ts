@@ -9,16 +9,21 @@ export const chatMessageSchema = z.object({
 export const assistantRequestSchema = z.object({
   threadId: z.string().uuid(),
   messages: z.array(chatMessageSchema).min(1).max(100),
-  booking: z.object({
-    weight: z.number().positive().max(200),
-    category: z.string().uuid(),
-    from: z.string().uuid(),
-    to: z.string().uuid(),
-  }).optional(),
+  booking: z
+    .object({
+      weight: z.number().positive().max(200),
+      category: z.string().uuid(),
+      from: z.string().uuid(),
+      to: z.string().uuid(),
+    })
+    .optional(),
 });
 
-export const messageText = (message: UIMessage) => message.parts
-  .filter((part) => part.type === "text").map((part) => part.text).join("");
+export const messageText = (message: UIMessage) =>
+  message.parts
+    .filter((part) => part.type === "text")
+    .map((part) => part.text)
+    .join("");
 
 export function savedMessages(values: unknown[]): UIMessage[] {
   return values.flatMap((value) => {

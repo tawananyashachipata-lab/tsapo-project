@@ -11,7 +11,7 @@ import { isZimPhone, normalizeZimPhone } from "@/lib/tsapo";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
-    meta: [
+    meta: [{ property: "og:type", content: "website" }, { name: "twitter:card", content: "summary_large_image" }, 
       { title: "Sign in — Tsapo" },
       { name: "description", content: "Sign in or create your Tsapo account to send and receive parcels." },
       { property: "og:title", content: "Sign in — Tsapo" },

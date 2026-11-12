@@ -152,3 +152,12 @@
 @utility bg-hero {
   background-image: var(--gradient-hero);
 }
+
+@media (prefers-reduced-motion: reduce) {
+  [role="log"] *,
+  [role="dialog"] * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

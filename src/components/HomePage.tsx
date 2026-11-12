@@ -19,11 +19,19 @@ export function HomePage() {
               Your parcel, from town to town.
             </h1>
             <p className="mt-5 max-w-md text-lg opacity-90">
-              Drop it at a Tsapo agent, follow every step, and your recipient collects it with a secure pickup code.
+              Drop it at a Tsapo agent, follow every step, and your recipient collects it with a
+              secure pickup code.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <Button asChild size="lg" variant="secondary"><Link to="/book">Send a parcel</Link></Button>
-              <Button asChild size="lg" variant="outline" className="border-primary-foreground/40 bg-transparent text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground">
+              <Button asChild size="lg" variant="secondary">
+                <Link to="/book">Send a parcel</Link>
+              </Button>
+              <Button
+                asChild
+                size="lg"
+                variant="outline"
+                className="border-primary-foreground/40 bg-transparent text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground"
+              >
                 <Link to="/agents">Find an agent</Link>
               </Button>
             </div>
@@ -36,10 +44,20 @@ export function HomePage() {
             }}
           >
             <h2 className="font-display text-xl font-bold">Track a parcel</h2>
-            <p className="mt-1 text-sm text-muted-foreground">Enter the tracking number, e.g. TSP-AB12-345678</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Enter the tracking number, e.g. TSP-AB12-345678
+            </p>
             <div className="mt-4 flex gap-2">
-              <Input value={code} onChange={(e) => setCode(e.target.value)} placeholder="TSP-XXXX-XXXXXX" aria-label="Tracking number" />
-              <Button type="submit"><Search className="mr-1 h-4 w-4" />Track</Button>
+              <Input
+                value={code}
+                onChange={(e) => setCode(e.target.value)}
+                placeholder="TSP-XXXX-XXXXXX"
+                aria-label="Tracking number"
+              />
+              <Button type="submit">
+                <Search className="mr-1 h-4 w-4" />
+                Track
+              </Button>
             </div>
           </form>
         </div>
@@ -49,10 +67,26 @@ export function HomePage() {
         <h2 className="font-display text-3xl font-bold">How Tsapo works</h2>
         <div className="mt-8 grid gap-6 md:grid-cols-4">
           {[
-            { icon: Smartphone, t: "Book online", d: "Enter sender, recipient and parcel details. See the price instantly." },
-            { icon: MapPin, t: "Drop off", d: "Take the parcel to your chosen Tsapo agent in your town." },
-            { icon: PackageCheck, t: "Track it", d: "Every hand-over is logged. Sender and recipient get updates." },
-            { icon: ShieldCheck, t: "Collect safely", d: "The recipient shows a 6-digit pickup code to collect." },
+            {
+              icon: Smartphone,
+              t: "Book online",
+              d: "Enter sender, recipient and parcel details. See the price instantly.",
+            },
+            {
+              icon: MapPin,
+              t: "Drop off",
+              d: "Take the parcel to your chosen Tsapo agent in your town.",
+            },
+            {
+              icon: PackageCheck,
+              t: "Track it",
+              d: "Every hand-over is logged. Sender and recipient get updates.",
+            },
+            {
+              icon: ShieldCheck,
+              t: "Collect safely",
+              d: "The recipient shows a 6-digit pickup code to collect.",
+            },
           ].map((s, i) => (
             <div key={s.t} className="rounded-xl border bg-card p-6">
               <div className="flex items-center gap-3">
@@ -69,10 +103,16 @@ export function HomePage() {
       <section className="bg-secondary">
         <div className="mx-auto flex max-w-6xl flex-col items-start gap-4 px-4 py-12 md:flex-row md:items-center md:justify-between">
           <div>
-            <h2 className="font-display text-2xl font-bold text-secondary-foreground">Run a shop? Become a Tsapo agent.</h2>
-            <p className="text-muted-foreground">Earn by receiving and handing over parcels in your town.</p>
+            <h2 className="font-display text-2xl font-bold text-secondary-foreground">
+              Run a shop? Become a Tsapo agent.
+            </h2>
+            <p className="text-muted-foreground">
+              Earn by receiving and handing over parcels in your town.
+            </p>
           </div>
-          <Button asChild><Link to="/agents">Apply as an agent</Link></Button>
+          <Button asChild>
+            <Link to="/agents">Apply as an agent</Link>
+          </Button>
         </div>
       </section>
     </div>

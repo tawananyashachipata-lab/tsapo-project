@@ -12,7 +12,7 @@ import { useSession } from "@/lib/auth";
 import { STATUS_LABEL, usd } from "@/lib/tsapo";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
-  head: () => ({ meta: [{ title: "My parcels — Tsapo" }, { name: "description", content: "Your sent and incoming Tsapo parcels." }, { property: "og:title", content: "My parcels — Tsapo" }, { property: "og:description", content: "Your sent and incoming Tsapo parcels." }] }),
+  head: () => ({ meta: [{ property: "og:type", content: "website" }, { name: "twitter:card", content: "summary_large_image" }, { title: "My parcels — Tsapo" }, { name: "description", content: "Your sent and incoming Tsapo parcels." }, { property: "og:title", content: "My parcels — Tsapo" }, { property: "og:description", content: "Your sent and incoming Tsapo parcels." }] }),
   component: Dashboard,
 });
 

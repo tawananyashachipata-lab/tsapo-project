@@ -32,3 +32,7 @@ use the editor.
 ## Project rules
 - Booking, status changes, pickup verification and payment confirmation go through security-definer database functions (rpc), never direct table writes — keeps role checks server-side.
 - The AI assistant streams plain text from the `/api/assistant` server route; the gateway key stays on the server.
+- Compose chat with AI Elements and TextStreamChatTransport, not DefaultChatTransport — the existing endpoint's plain-text contract is authoritative.
+- Account chat uses route-derived thread IDs and owner-scoped thread/message records; the server revalidates ownership before reading history or saving replies.
+- Reuse HomePage and BookingForm on thread URLs, and keep booking drafts in the root provider — switching conversations must not clear sender input.
+- Ground assistant prices and tracking in read-only records/RPCs; never fetch pickup-code records for the model.

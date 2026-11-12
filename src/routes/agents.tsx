@@ -12,7 +12,7 @@ import { isZimPhone, normalizeZimPhone } from "@/lib/tsapo";
 
 export const Route = createFileRoute("/agents")({
   head: () => ({
-    meta: [
+    meta: [{ property: "og:type", content: "website" }, { name: "twitter:card", content: "summary_large_image" }, 
       { title: "Tsapo agents near you" },
       { name: "description", content: "Find an approved Tsapo drop-off and collection agent in your town, or apply to become one." },
       { property: "og:title", content: "Tsapo agents near you" },

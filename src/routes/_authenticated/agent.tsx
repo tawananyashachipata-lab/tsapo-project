@@ -9,7 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { STATUS_LABEL, PAYMENT_LABEL, usd, type ParcelStatus } from "@/lib/tsapo";
 
 export const Route = createFileRoute("/_authenticated/agent")({
-  head: () => ({ meta: [{ title: "Agent desk — Tsapo" }, { name: "description", content: "Receive, dispatch and hand over Tsapo parcels." }, { property: "og:title", content: "Agent desk — Tsapo" }, { property: "og:description", content: "Tsapo agent tools." }] }),
+  head: () => ({ meta: [{ property: "og:type", content: "website" }, { name: "twitter:card", content: "summary_large_image" }, { title: "Agent desk — Tsapo" }, { name: "description", content: "Receive, dispatch and hand over Tsapo parcels." }, { property: "og:title", content: "Agent desk — Tsapo" }, { property: "og:description", content: "Tsapo agent tools." }] }),
   component: AgentDesk,
 });
 

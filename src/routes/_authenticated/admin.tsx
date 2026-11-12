@@ -9,7 +9,7 @@ import { useRoles, useSession } from "@/lib/auth";
 import { PAYMENT_LABEL, STATUS_LABEL, usd } from "@/lib/tsapo";
 
 export const Route = createFileRoute("/_authenticated/admin")({
-  head: () => ({ meta: [{ title: "Admin — Tsapo" }, { name: "description", content: "Manage Tsapo agents, payments and support." }, { property: "og:title", content: "Admin — Tsapo" }, { property: "og:description", content: "Tsapo administration." }] }),
+  head: () => ({ meta: [{ property: "og:type", content: "website" }, { name: "twitter:card", content: "summary_large_image" }, { title: "Admin — Tsapo" }, { name: "description", content: "Manage Tsapo agents, payments and support." }, { property: "og:title", content: "Admin — Tsapo" }, { property: "og:description", content: "Tsapo administration." }] }),
   component: Admin,
 });
 

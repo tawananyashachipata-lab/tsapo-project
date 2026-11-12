@@ -12,7 +12,7 @@ import { STATUS_LABEL, type ParcelStatus } from "@/lib/tsapo";
 export const Route = createFileRoute("/track")({
   validateSearch: z.object({ n: z.string().optional() }),
   head: () => ({
-    meta: [
+    meta: [{ property: "og:type", content: "website" }, { name: "twitter:card", content: "summary_large_image" }, 
       { title: "Track a parcel — Tsapo" },
       { name: "description", content: "Follow your Tsapo parcel from drop-off to collection." },
       { property: "og:title", content: "Track a parcel — Tsapo" },
