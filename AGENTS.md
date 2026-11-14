@@ -36,3 +36,8 @@ use the editor.
 - Account chat uses route-derived thread IDs and owner-scoped thread/message records; the server revalidates ownership before reading history or saving replies.
 - Reuse HomePage and BookingForm on thread URLs, and keep booking drafts in the root provider — switching conversations must not clear sender input.
 - Ground assistant prices and tracking in read-only records/RPCs; never fetch pickup-code records for the model.
+- Use verified Auth identity for recipient access, never editable profile contact fields — prevents recipient impersonation.
+- Shared shipment permission and submission checks live in `src/lib/operations.ts`, mirrored by database enforcement — keeps sender/agent views consistent without trusting UI authorization.
+- Surface query failures instead of treating them as empty records — failed operations must not look successful.
+- Build with standalone Vite/TanStack/Nitro configuration; use the Vercel preset on Vercel and `dist/` for the managed Worker deployment — preserves both hosting targets.
+- Private parcel photos use short-lived signed URLs scoped by RLS to authorized viewers — no public photo bucket.

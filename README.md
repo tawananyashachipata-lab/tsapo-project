@@ -22,7 +22,7 @@ Some actions require a working backend and configured services. If booking, auth
 
 ## Developer setup
 
-**Requirements:** Node.js 20.19+ or 22.12+, npm (or Bun), and access to the backend configured for the application.
+**Requirements:** Node.js 22.12+ or Bun, and the existing backend's public configuration.
 
 ```sh
 git clone https://github.com/tawananyashachipata-lab/tsapo-project.git
@@ -35,9 +35,9 @@ Open the local address printed in the terminal.
 
 ### Environment configuration
 
-The current source code still uses Supabase for authentication, parcel data and assistant conversations. Configure the required Supabase project URL and publishable key in a local `.env` file using the variable names expected by `src/integrations/supabase/client`. Do not commit private credentials. Existing values may refer to an old hosted project; verify they belong to a backend you control.
+Tsapo remains connected to the existing Lovable Cloud backend by the owner's choice. It uses the Supabase client protocol for accounts, parcels, private storage and conversations. Do not create another project or replay the initial migrations on the existing database.
 
-If you want to replace Supabase, the authentication, database access and server routes must be migrated before deleting those integrations.
+Copy `.env.example` to `.env` locally and fill in the existing backend's URL and publishable key. Configure both the `VITE_` browser variables and unprefixed server variables. Public keys are not administrator credentials; RLS and authenticated database functions authorize operations. Never place private service/API keys in a `VITE_` variable or commit them. Preserve the generated integration files while working in Lovable.
 
 ### Commands
 
@@ -51,7 +51,23 @@ If you want to replace Supabase, the authentication, database access and server 
 
 ### Deploy
 
-Tsapo uses TanStack Start with server-side routes, so deploy it to a hosting environment that supports the generated server runtime. Configure backend environment variables in the hosting provider and use `npm run build`. Check deployment logs and test sign-in, booking, tracking and assistant functionality after deploying.
+The source uses standalone Vite, TanStack Start and Nitro plugins, not a Lovable runtime/build package. Lovable's editor-only tagging/preview packages are not imported by the production configuration; the editor may automatically install them for its own preview.
+
+#### GitHub and Vercel
+
+1. Connect GitHub through Lovable's Project settings → Git, or use the existing repository outside Lovable. The agent cannot connect Git sync or a Vercel account for you.
+2. Import the repository into Vercel and select Node.js 22. The included `vercel.json` uses Bun, the committed lockfile and Nitro's Vercel preset. Do not add SPA rewrites: the application has real server routes.
+3. Set the public/browser and server backend variables from `.env.example` in Vercel for the same existing backend. No database is created during the application build.
+4. Ensure the existing authentication service allows the final site's origin and `/reset-password` callback. Test a genuine confirmation/reset email on that domain; redirect settings are not established by source code alone.
+5. Deploy and verify sign-in, a marked test booking, public tracking, role restrictions, private photo access, support and notifications. Vercel deployment has **not** been performed or verified from this editor.
+
+#### Remaining managed-service limitations
+
+- Keeping Lovable Cloud preserves the existing data; it does not make the backend independent of Lovable. An enabled Cloud connection cannot be disconnected here, and its service-role credentials cannot be exported.
+- The existing AI endpoint uses a server-only Lovable AI key and privileged circuit-breaker access. Those managed credentials are not available for copying to Vercel. The current AI endpoint will fail safely without them; full AI portability remains blocked, not complete. Do not put a fabricated key into hosting settings.
+- In-app shipment notifications are implemented; SMS/email shipment notifications are not integrated.
+- EcoCash, OneMoney, bank transfer and cash-at-agent are recorded payment methods with real manual verification. No automatic payment settlement or fake payment success is implemented.
+- For local Node hosting, set `NITRO_PRESET=node-server` and use the produced `dist/server` entry. In-editor production builds default to the Worker adapter and write `dist/`; Vercel builds use its own build-output adapter.
 
 ## Project structure
 
@@ -62,4 +78,4 @@ Tsapo uses TanStack Start with server-side routes, so deploy it to a hosting env
 - `public/favicon.svg` — Tsapo parcel favicon
 - `vite.config.ts` — standalone Vite and TanStack Start configuration
 
-This project is maintained directly in GitHub and does not need Lovable for development.
+The source can be developed from GitHub; the selected existing backend and AI remain managed services. See `AUDIT.md` for verified outcomes and outstanding checks.

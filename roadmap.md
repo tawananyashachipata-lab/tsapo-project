@@ -1,6 +1,11 @@
 # Tsapo functionality and deployment
-- [ ] Audit real pages, existing records, authentication settings, relationships and permissions; report findings first.
-- [ ] Repair support, booking validation, notifications, role-specific dashboards and shipment management without deleting existing data.
-- [ ] Harden database functions, recipient access, private uploads and AI error handling.
-- [ ] Prepare GitHub/Vercel configuration and document remaining managed-service dependencies.
-- [ ] Run automated tests and real browser workflows, distinguish verified features and external blockers.
+- [x] Audit real pages, existing records, authentication settings, relationships and permissions; report findings first.
+- [x] Repair support, booking validation, notifications, role-specific dashboards and shipment management without deleting existing data.
+- [x] Harden database functions, recipient access, private uploads and AI error handling.
+- [x] Prepare GitHub/Vercel configuration and document remaining managed-service dependencies.
+- [x] Run 17 automated tests and real booking/photo/support/agent/pickup/tracking/AI/mobile flows; document results in AUDIT.md.
+- [ ] Verify confirmation email, successful password sign-in and recovery — needs a consenting test mailbox/account.
+- [ ] Verify multi-account recipient isolation and agent/admin-role management — needs designated test accounts; do not alter existing users for testing.
+- [ ] Verify payment confirmation with a genuine test receipt — no real payment should be falsely confirmed.
+- [ ] Deploy and verify on Vercel — needs the owner's Vercel connection and final-domain auth settings.
+- [ ] Make managed backend/AI independent — blocked by the choice to keep Cloud and unavailable exportable managed-service credentials.

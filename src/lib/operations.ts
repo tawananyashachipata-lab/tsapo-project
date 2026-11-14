@@ -20,8 +20,12 @@ export function isIncomingParcel(
 ) {
   if (!user || parcel.sender_id === user.id) return false;
   return Boolean(
-    (user.email_confirmed_at && user.email && parcel.recipient_email?.toLowerCase() === user.email.toLowerCase()) ||
-      (user.phone_confirmed_at && user.phone && parcel.recipient_phone === `+${user.phone.replace(/^\+/, "")}`),
+    (user.email_confirmed_at &&
+      user.email &&
+      parcel.recipient_email?.toLowerCase() === user.email.toLowerCase()) ||
+    (user.phone_confirmed_at &&
+      user.phone &&
+      parcel.recipient_phone === `+${user.phone.replace(/^\+/, "")}`),
   );
 }
 
@@ -36,14 +40,23 @@ export function agentNextAction(
   agent: { id: string; location_id: string } | null | undefined,
 ): { to: ParcelStatus; label: string } | undefined {
   if (!agent) return;
-  if (parcel.status === "awaiting_agent" && parcel.pickup_location_id === agent.location_id && (!parcel.origin_agent_id || parcel.origin_agent_id === agent.id))
+  if (
+    parcel.status === "awaiting_agent" &&
+    parcel.pickup_location_id === agent.location_id &&
+    (!parcel.origin_agent_id || parcel.origin_agent_id === agent.id)
+  )
     return { to: "received_by_agent", label: "Mark received" };
   if (parcel.status === "received_by_agent" && parcel.origin_agent_id === agent.id)
     return { to: "in_transit", label: "Dispatch" };
-  if (parcel.status === "in_transit" && parcel.destination_location_id === agent.location_id && (!parcel.destination_agent_id || parcel.destination_agent_id === agent.id))
+  if (
+    parcel.status === "in_transit" &&
+    parcel.destination_location_id === agent.location_id &&
+    (!parcel.destination_agent_id || parcel.destination_agent_id === agent.id)
+  )
     return { to: "arrived_destination", label: "Mark arrived" };
   if (parcel.status === "arrived_destination" && parcel.destination_agent_id === agent.id)
     return { to: "ready_for_collection", label: "Ready for collection" };
+  return undefined;
 }
 
 export function validateParcelPhoto(file: Pick<File, "type" | "size">) {
