@@ -37,7 +37,10 @@ function AuthPage() {
     setBusy(true);
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     setBusy(false);
-    if (error) { toast.error(error.message); return; }
+    if (error) {
+      toast.error(error.message === "Email not confirmed" ? "Your account is awaiting email confirmation. Please contact Tsapo support while we update account verification settings." : error.message);
+      return;
+    }
     navigate({ to: "/dashboard" });
   }
 
@@ -45,7 +48,7 @@ function AuthPage() {
     e.preventDefault();
     if (!isZimPhone(phone)) { toast.error("Enter a Zimbabwean phone number, e.g. 0771 234 567"); return; }
     setBusy(true);
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email, password,
       options: {
         emailRedirectTo: window.location.origin,
@@ -54,6 +57,12 @@ function AuthPage() {
     });
     setBusy(false);
     if (error) { toast.error(error.message); return; }
+    if (data.session) {
+      toast.success("Account created successfully. Welcome to Tsapo!");
+      navigate({ to: "/dashboard" });
+      return;
+    }
+    // If the backend still requires confirmation, do not pretend a session exists.
     setSent(true);
   }
 
